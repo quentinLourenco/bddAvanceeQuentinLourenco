@@ -1,45 +1,71 @@
-# Exercice 1
+# Exercice 2
 
-## Selectionner toutes les classes et afficher le libellé de celle-ci
+## nombre de posts par auteur
 
 ```SQL
 
-SELECT classe_libelle_long FROM Classes;
+SELECT 
+    author_id, COUNT(*) AS post_count
+FROM 
+    posts
+GROUP BY 
+    author_id
+ORDER BY 
+    post_count DESC;
 
 ```
 
-## Selectionner toutes les classes dont le titre professionnel est CDA.
+![alt text](image1.png)
+
+## nombre de post moyen par auteur
 
 ```SQL
-SELECT c.classe_libelle_long FROM classe c JOIN TitresProfessionnels tp ON c.IdTitreProfessionnel = tp.Id WHERE tp.Libelle = 'CDA';
+
+SELECT 
+    AVG(POSTCOUNT) AS MOYENNEPOST
+FROM (
+    SELECT 
+        author_id, COUNT(*) AS POSTCOUNT
+    FROM 
+        posts
+    GROUP BY 
+        author_id
+) AS POSTAUTEUR;
 
 ```
 
-## Selectionner toutes les classes qui n'ont pas de titre professionnel lié.
+![alt text](image2.png)
+
+## liste des auteurs (nom et prenom) dont les posts sont supérieurs à 10 avec la clause having
 
 ```SQL
 
-SELECT c.classe_libelle_long FROM classe WHERE titre_professionnel_id IS NULL;
+SELECT 
+    *, COUNT(posts.id) AS POSTCOUNT
+FROM 
+    authors
+JOIN 
+    posts 
+ON 
+    authors.id = posts.author_id
+GROUP BY 
+    authors.id, authors.first_name, authors.last_name
+HAVING 
+    COUNT(posts.id) > 10;
 
 ```
 
-## Selectionner touts les titres professionnels qui n'ont pas de classe liée
+![alt text](image3.png)
+
+## liste des auteurs (nom et prenom) dont les posts sont supérieurs à 10 avec une sous-requête
+
 
 ```SQL
-
-SELECT * FROM titre_professionnel JOIN classe ON titre_professionnel.titre_professionnel_id = classe.titre_professionnel_id WHERE classe.titre_professionnel_id IS NULL;
 
 ```
 
-## Selectionner tous les tous les tuteurs (Nom et prénom) dont les étudiants sont en CDA.
+## Liste des auteurs qui ont créé plus de post que la moyenne.
 
 ```SQL
-
-SELECT * FROM tuteur 
-JOIN etudiant ON tuteur.tuteur_id = etudiant.tuteur_id 
-JOIN integrer ON etufiant.etudiant_id = integrer.etudiant_id
-JOIN classe ON integrer.classe_id = classe.id
-JOIN titre_professionnel ON classe.titre_professionnel_id = titre_professionnel.titre_professionnel_id
-WHERE titre_professionnel.libelle = 'CDA';
 
 ```
