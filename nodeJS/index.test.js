@@ -1,71 +1,39 @@
-const mysql = require("mysql2");
-jest.mock("mysql2");
+const request = require("supertest");
+const app = require("./index");
 
-const connexion = {
-    promise: jest.fn().mockReturnThis(),
-    query: jest.fn(),
+const employe = {
+    first_name: 'toto',
+    last_name: 'momo',
+    email : 'toto@momo.test',
+    salary: 1, 
+    service_id: 1,
+    id: 1
 };
 
-mysql.createConnection = jest.fn(() => connexion);
+const id = 5;
+const updateEmployeInfo = { id: 5, last_name: "user5" };
 
-const {
-    addEmployee,
-    deleteEmployeeByid,
-    updateEmployeeByid,
-} = require("./index.js");
+describe("test index js", () => {
+  it("test la récuperation d'un employé par id", async () => {
+    const response = await request(app).get("/getEmployeeById/1");
+    expect(response.status).toBe(200);
+  });
 
-describe("Employee Functions", () => {
-    afterEach(() => {
-        jest.clearAllMocks();
-    });
+  it("test la creation d'un employé", async () => {
+    const createEmploye = await request(app).post("/addEmployee").send(employe);
+    console.log("response after creating employe", createEmploye);
+    expect(createEmploye.status).toBe(200);
+    expect(createEmploye.body.isDeleted).toBeFalsy();
+  });
 
-    test("addEmployee - ajoute un employé avec succès", async () => {
-        connexion.query.mockResolvedValue([{ insertId: 1 }]);
+  it("test la mise a jour d'un employé", async () => {
+    const updateEmploye = await request(app).put("/updateUser").send(updateEmployeInfo);
+    expect(updateEmploye.status).toBe(200);
+    expect(updateEmploye.body.name).toBe(updateEmploye.name);
+  });
 
-        const result = await addEmployee(
-            "John",
-            "Doe",
-            "john.doe@example.com",
-            50000,
-            1
-        );
-
-        expect(result.insertId).toBe(1);
-        expect(connexion.query).toHaveBeenCalledWith(
-            `INSERT INTO employees (first_name, last_name, email, salary, service_id) VALUES (?, ?, ?, ?, ?);`,
-            ["John", "Doe", "john.doe@example.com", 50000, 1]
-        );
-    });
-
-    test("deleteEmployeeByid - supprime un employé avec succès", async () => {
-        connexion.query.mockResolvedValue([{ affectedRows: 1 }]);
-
-        const result = await deleteEmployeeByid(1);
-
-        expect(result.affectedRows).toBe(1);
-        expect(connexion.query).toHaveBeenCalledWith(
-            `DELETE FROM employees WHERE id = ?;`,
-            [1]
-        );
-    });
-
-    test("updateEmployeeByid - met à jour un employé avec succès", async () => {
-        connexion.query.mockResolvedValue([{ affectedRows: 1 }]);
-
-        const result = await updateEmployeeByid(
-            1,
-            "Jane",
-            "Smith",
-            "jane.smith@example.com",
-            60000,
-            2
-        );
-
-        expect(result.affectedRows).toBe(1);
-        expect(connexion.query).toHaveBeenCalledWith(
-            `UPDATE employees SET first_name = ?, last_name = ?, email = ?, salary = ?, service_id = ? WHERE id = ?;`,
-            ["Jane", "Smith", "jane.smith@example.com", 60000, 2, 1]
-        );
-    });
+  it("test la suppression d'un employé", async () => {
+    const deleteEmploye = await request(app).delete("/deleteEmployeeByid").send({ id });
+    expect(deleteEmploye.status).toBe(204);
+  });
 });
-

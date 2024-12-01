@@ -53,4 +53,4 @@ Puis je reportais mon code sur question.md afin que ça soit plus facile à suiv
 - Le controle F5 suffisait à réglé le soucis de synchronisation.
 - J'ai installé nodemon, c'est très pratique pour ce genre de projet.
 - J'ai privélégié les request query quand j'avais beaucoup de valeur, plus long à mettre en place mais plus compréhensible.
-- J'ai crié à l'aide
+- La mise en place de l'acces à la base de donnée pour les tests
